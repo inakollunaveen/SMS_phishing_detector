@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SMS Phishing Detection</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f9f9f9; }
+    .container { max-width: 600px; margin: auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { text-align: center; color: #333; }
+    form { text-align: center; margin-top: 20px; }
+    input[type="file"] { margin: 10px 0; }
+    button { padding: 10px 20px; border: none; border-radius: 6px; background: #007bff; color: white; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .result { margin-top: 20px; padding: 15px; border-radius: 8px; background: #eef; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    mark { background: #ffeb3b; }
+    .badge { font-size: 1.2em; font-weight: bold; }
+    .urls { margin-top: 10px; }
+    .urls li { margin-bottom: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📩 SMS Phishing Detector</h1>
+    <form method="post" enctype="multipart/form-data">
+      <p>Upload an SMS screenshot (image):</p>
+      <input type="file" name="image" accept="image/*" required>
+      <br>
+      <button type="submit">Analyze</button>
+    </form>
+
+    {% if image_path %}
+      <div style="text-align:center; margin-top:20px;">
+        <img src="{{ image_path }}" alt="Uploaded SMS" style="max-width:100%; max-height:200px; border-radius:8px;">
+      </div>
+    {% endif %}
+
+    {% if sms_text %}
+      <div class="result">
+        <h2>📝 Extracted SMS Text</h2>
+        <pre>{{ highlighted_text|safe }}</pre>
+      </div>
+    {% endif %}
+
+    {% if analysis %}
+      <div class="result">
+        <h2>🔍 Analysis Result</h2>
+        <div class="badge">{{ analysis.badge }}</div>
+        <p><b>Confidence:</b> {{ analysis.confidence }}</p>
+        <p><b>User Message:</b> {{ analysis.user_message }}</p>
+        <p><b>Reasons:</b></p>
+        <ul>
+          {% for reason in analysis.reasons %}
+            <li>{{ reason }}</li>
+          {% endfor %}
+        </ul>
+        <p><b>Risky Phrases:</b> {{ analysis.risky_phrases|join(', ') }}</p>
+        <div class="urls">
+          <b>URLs Detected:</b>
+          <ul>
+            {% for url in analysis.urls %}
+              <li>
+                <a href="{{ url.url }}" target="_blank">{{ url.url }}</a>
+                ({{ url.status }})
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+        <p><b>Recommendations:</b></p>
+        <ul>
+          {% for rec in analysis.recommendations %}
+            <li>{{ rec }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+</body>
+</html>
